@@ -1,0 +1,5 @@
+{
+  "name": "Entity Search",
+  "description": "A platform for quickly searching for company information for tax returns, by name and state.",
+  "requestFramePermissions": []
+}
