@@ -16,54 +16,59 @@ export async function searchBusinessInfo(info: BusinessInfo, sessionId: string) 
   
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are a professional business analyst. Generate a COMPREHENSIVE, CLEAR, and BEAUTIFUL Business Information Report for "${info.name}" in the state of ${info.state}.
+  const prompt = `You are a specialized Tax Research Assistant for US Tax Managers. Your goal is to find missing business information for tax returns (Forms 1120, 1065, 1040 Sch C) and identify potential tax risks.
 
-  Your goal is to provide the most accurate and easy-to-understand data. Use Google Search to verify information across official state registries, company websites, social media, Google Maps, business directories, and financial news.
+  Search for "${info.name}" in ${info.state} across:
+  1. **Business Directories:** Yelp, Thumbtack, LinkedIn, Glassdoor.
+  2. **Official Sources:** Secretary of State registries, SEC EDGAR, IRS public records.
 
-  The report MUST follow this exact structure:
+  The report MUST follow this structure:
   
-  # 🏢 Business Information Report: ${info.name}
+  # 🏛️ Tax Research Report: ${info.name}
   
-  ## 📋 Core Details
+  ## 📑 Tax & Legal Identity
   | Property | Information |
   | :--- | :--- |
   | **Legal Name** | [Full Legal Name] |
-  | **Entity Type** | [LLC, Corporation, etc.] |
-  | **Status** | [Active / Dissolved / Inactive] |
-  | **Legality & Compliance** | [Is the company in good standing? Any public legal flags?] |
-  | **Sanctions Check** | [Check if the company or its known owners are on any international sanctions lists (OFAC, EU, etc.). State 'No sanctions found' or list details.] |
-  | **Date of Formation** | [Date of incorporation/creation] |
-  | **Industry / Sector** | [Clear description of the field of activity] |
-  | **State of Registration** | ${info.state} |
+  | **Entity Type** | [LLC, S-Corp, C-Corp, Partnership, etc.] |
+  | **EIN Status** | [Found/Not Found] |
+  | **Formation Date** | [Date] |
+  | **Status** | [Active/Good Standing] |
   
-  ## 👥 Ownership & Leadership
-  *   **Owners / Officers:** [List key owners, directors, or officers if publicly available]
+  ## 📍 Location & Nexus Analysis
+  *   **Primary Address:** [Full Address for tax filing]
+  *   **Activity in Other States:** [List other states where company has reviews/offices/activity on Yelp/Thumbtack]
+  *   **Nexus Risk:** [Briefly state if there's a risk of Sales Tax Nexus in other states based on activity]
   
-  ## 📍 Contact & Location
-  *   **Registered Address:** [Full Address - check Google Maps for accuracy]
-  *   **Registered Agent:** [Name & Address]
-  *   **Website:** [Official URL if found]
+  ## 💰 Financial & Operational Data
+  *   **Estimated Annual Revenue:** [Amount]
+  *   **Employee Count:** [Estimate]
   
-  ## 🔑 Identification
-  *   **Registration Number:** [State ID]
-  *   **EIN:** [If publicly available, otherwise state 'Not publicly listed']
-  
-  ## 🌐 Online Presence & Social Media
-  *   **LinkedIn:** [URL]
-  *   **Twitter/X:** [URL]
-  *   **Other Platforms:** [Facebook, Instagram, etc.]
-  
-  ## 📊 Market Context & Financials
-  *   **Public Financials:** [If public, list stock ticker, current price, and brief financial summary. If private, state 'Private company'.]
-  *   **Similar Companies:** [List 2-3 similar companies or competitors]
-  
-  ## 📝 Summary & Business Overview
-  [Provide a clear, professional summary of the company's business activities, market presence, and overall reputation based on available data.]
-  
-  ---
-  *Report generated for tax return and business analysis purposes.*
+  ## 🔗 Source Links
+  *   **Yelp/Thumbtack:** [URLs]
+  *   **Official Registry:** [URL]
 
-  Respond in English. Use clear Markdown tables, bullet points, and bold text for maximum readability.`;
+  ## 📝 Summary for Tax Return
+  [Provide a concise summary of business activity.]
+
+  ---
+  ### DATA_FOR_UI_DO_NOT_EDIT
+  {
+    "financials": [
+      {"year": "2021", "revenue": 0},
+      {"year": "2022", "revenue": 0},
+      {"year": "2023", "revenue": 0}
+    ],
+    "naics": [
+      {"code": "XXXXXX", "description": "Primary Industry Name", "confidence": "High"},
+      {"code": "XXXXXX", "description": "Secondary Industry Name", "confidence": "Medium"}
+    ],
+    "nexus_risks": [
+      {"state": "State Name", "risk_level": "High/Medium", "reason": "Active reviews/services found here but registered in ${info.state}"}
+    ]
+  }
+  ---
+  *Note: Ensure the JSON is valid and filled with real data if found.*`;
 
   try {
     const chat = ai.chats.create({

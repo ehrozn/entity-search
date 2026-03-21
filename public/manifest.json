@@ -1,0 +1,21 @@
+{
+  "name": "Entity Search Platform",
+  "short_name": "EntitySearch",
+  "description": "Tax Research Assistant for US Tax Managers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/tax/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/seed/tax/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

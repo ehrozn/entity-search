@@ -9,6 +9,17 @@ import { CookieConsent } from './components/CookieConsent';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import Papa from 'papaparse';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  LineChart,
+  Line
+} from 'recharts';
 
 interface Message {
   id: string;
@@ -368,6 +379,100 @@ export default function App() {
     setState('');
   };
 
+  const BusinessDataVisuals: React.FC<{ content: string }> = ({ content }) => {
+    const jsonMatch = content.match(/### DATA_FOR_UI_DO_NOT_EDIT\n([\s\S]*?)\n---/);
+    if (!jsonMatch) return null;
+
+    try {
+      const data = JSON.parse(jsonMatch[1]);
+      const hasFinancials = data.financials && data.financials.some((f: any) => f.revenue > 0);
+      const hasNaics = data.naics && data.naics.length > 0 && data.naics[0].code !== "XXXXXX";
+      const hasNexus = data.nexus_risks && data.nexus_risks.length > 0 && data.nexus_risks[0].state !== "State Name";
+
+      return (
+        <div className="mt-6 space-y-6 border-t border-slate-100 pt-6">
+          {hasFinancials && (
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Loader2 size={14} className="text-emerald-600" />
+                Estimated Revenue Trend
+              </h3>
+              <div className="h-48 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={data.financials}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                    <XAxis dataKey="year" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                      cursor={{ fill: '#f1f5f9' }}
+                    />
+                    <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {hasNaics && (
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Info size={14} className="text-blue-600" />
+                  Industry Code Matcher
+                </h3>
+                <div className="space-y-3">
+                  {data.naics.map((item: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="text-sm font-bold text-blue-900 font-mono">{item.code}</span>
+                        <span className={cn(
+                          "text-[10px] px-2 py-0.5 rounded-full font-bold uppercase",
+                          item.confidence === 'High' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                        )}>
+                          {item.confidence} Match
+                        </span>
+                      </div>
+                      <p className="text-xs text-blue-800 leading-relaxed">{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {hasNexus && (
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <AlertCircle size={14} className="text-rose-600" />
+                  Nexus Risk Analyzer
+                </h3>
+                <div className="space-y-3">
+                  {data.nexus_risks.map((risk: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-rose-50/50 rounded-xl border border-rose-100">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-bold text-rose-900">{risk.state}</span>
+                        <span className={cn(
+                          "text-[10px] px-2 py-0.5 rounded-full font-bold uppercase",
+                          risk.risk_level === 'High' ? "bg-rose-200 text-rose-800" : "bg-amber-200 text-amber-800"
+                        )}>
+                          {risk.risk_level} Risk
+                        </span>
+                      </div>
+                      <p className="text-xs text-rose-800 leading-relaxed">{risk.reason}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    } catch (e) {
+      console.error("Failed to parse business visuals data", e);
+      return null;
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[#f5f5f5] font-sans text-slate-900 overflow-hidden">
       {/* Sidebar - Desktop */}
@@ -647,8 +752,12 @@ export default function App() {
                   </div>
                 )}
                 <div className="prose prose-slate max-w-none prose-sm md:prose-base dark:prose-invert">
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
+                  <ReactMarkdown>{message.content.split('### DATA_FOR_UI_DO_NOT_EDIT')[0]}</ReactMarkdown>
                 </div>
+
+                {message.role === 'assistant' && message.isResult && (
+                  <BusinessDataVisuals content={message.content} />
+                )}
 
                 {message.role === 'assistant' && message.isResult && (
                   <AdBanner 

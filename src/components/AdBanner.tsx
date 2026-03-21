@@ -14,8 +14,17 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   className = ''
 }) => {
   // Use the environment variable, but fallback to the user's ID if it's not set
-  let adsenseClientId = import.meta.env.VITE_ADSENSE_CLIENT_ID || 'ca-pub-7207480086274037';
+  const envId = import.meta.env.VITE_ADSENSE_CLIENT_ID;
+  console.log('DEBUG: envId =', JSON.stringify(envId));
   
+  let adsenseClientId = 'ca-pub-7207480086274037'; // Default to user's ID
+  
+  if (envId && typeof envId === 'string' && envId.trim() !== '' && envId !== 'undefined') {
+    adsenseClientId = envId;
+  }
+  
+  console.log('DEBUG: final adsenseClientId =', adsenseClientId);
+
   // Robustness: Add ca- prefix if user provided only the pub- part
   if (adsenseClientId && !adsenseClientId.startsWith('ca-')) {
     adsenseClientId = adsenseClientId.startsWith('pub-') 
@@ -24,7 +33,8 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   }
 
   // Fallback for the slot ID as well
-  const adSlot = slot || import.meta.env.VITE_ADSENSE_SLOT_DEFAULT || '5935814652';
+  const envSlot = import.meta.env.VITE_ADSENSE_SLOT_DEFAULT;
+  const adSlot = slot || (envSlot && envSlot.trim() !== '' && envSlot !== 'undefined' ? envSlot : '5935814652');
   const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
@@ -49,7 +59,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
     <div className={`overflow-hidden ${className}`}>
       {!adsenseClientId ? (
         <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-4 flex items-center justify-center text-slate-400 text-xs text-center">
-          Ad Space<br/>(Configure VITE_ADSENSE_CLIENT_ID)
+          Ad Space<br/>(VERSION: 3 - FORCED ID)
         </div>
       ) : (
         <ins
