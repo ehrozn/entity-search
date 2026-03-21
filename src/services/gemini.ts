@@ -1,7 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-
 export interface BusinessInfo {
   name: string;
   state: string;
@@ -11,7 +9,13 @@ export interface BusinessInfo {
 const chatSessions = new Map<string, any>();
 
 export async function searchBusinessInfo(info: BusinessInfo, sessionId: string) {
-  const model = "gemini-3-flash-preview";
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === "undefined" || apiKey === "") {
+    return "An error occurred: Gemini API key is missing. Please set GEMINI_API_KEY in your environment (Settings -> Secrets).";
+  }
+  
+  const ai = new GoogleGenAI({ apiKey });
+  
   const prompt = `You are a professional business analyst. Generate a COMPREHENSIVE, CLEAR, and BEAUTIFUL Business Information Report for "${info.name}" in the state of ${info.state}.
 
   Your goal is to provide the most accurate and easy-to-understand data. Use Google Search to verify information across official state registries, company websites, social media, Google Maps, business directories, and financial news.
@@ -63,7 +67,7 @@ export async function searchBusinessInfo(info: BusinessInfo, sessionId: string) 
 
   try {
     const chat = ai.chats.create({
-      model: model,
+      model: "gemini-3-flash-preview",
       config: {
         tools: [{ googleSearch: {} }],
       }
@@ -73,9 +77,13 @@ export async function searchBusinessInfo(info: BusinessInfo, sessionId: string) 
     
     const response = await chat.sendMessage({ message: prompt });
     return response.text || "Information not found.";
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "An error occurred while searching for information. Please check your API settings or try again later.";
+  } catch (error: any) {
+    console.error("Gemini API Error Details:", error);
+    // Log more specific error info if available
+    if (error.message) console.error("Error Message:", error.message);
+    if (error.status) console.error("Error Status:", error.status);
+    
+    return `An error occurred while searching for information: ${error.message || 'Unknown error'}. Please check your API settings or try again later.`;
   }
 }
 
@@ -88,8 +96,8 @@ export async function askFollowUp(sessionId: string, question: string) {
   try {
     const response = await chat.sendMessage({ message: question });
     return response.text || "No response found.";
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini Follow-up Error:", error);
-    return "An error occurred while processing your question.";
+    return `An error occurred while processing your question: ${error.message || 'Unknown error'}.`;
   }
 }
