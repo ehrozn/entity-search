@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Building2, MapPin, Search, History, Plus, Loader2, Info, Star, StarOff, Heart, Download, FileText, Upload, MessageSquare, X, Menu, Copy, Trash2, CheckCircle2, AlertCircle, Printer, Users } from 'lucide-react';
+import { Send, Building2, MapPin, Search, History, Plus, Loader2, Info, Star, StarOff, Heart, Download, FileText, Upload, MessageSquare, X, Menu, Copy, Trash2, CheckCircle2, AlertCircle, Printer, Users, Globe, Briefcase } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { searchBusinessInfo, askFollowUp } from './services/gemini';
 import { cn } from './lib/utils';
@@ -394,39 +394,93 @@ export default function App() {
       const hasFinancials = data.financials && data.financials.some((f: any) => f.revenue > 0);
       const hasNaics = data.naics && data.naics.length > 0 && data.naics[0].code !== "XXXXXX";
       const hasNexus = data.nexus_risks && data.nexus_risks.length > 0 && data.nexus_risks[0].state !== "State Name";
-      const hasOwners = data.owners && data.owners.length > 0 && data.owners[0].name !== "Owner Name";
+      const hasOwners = data.owners && data.owners.length > 0 && data.owners[0].name !== "Name";
+      const hasDirectors = data.directors && data.directors.length > 0 && data.directors[0].name !== "Name";
+      const hasOtherExact = data.other_states_exact && data.other_states_exact.length > 0 && data.other_states_exact[0].state !== "State";
+      const hasSimilar = data.similar_entities && data.similar_entities.length > 0 && data.similar_entities[0].name !== "Similar Name";
 
       return (
         <div className="mt-6 space-y-6 border-t border-slate-100 pt-6">
-          {hasOwners && (
-            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Users size={14} className="text-indigo-600" />
-                Ownership & Management
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {data.owners.map((owner: any, idx: number) => (
-                  <div key={idx} className="p-3 bg-indigo-50/30 rounded-xl border border-indigo-100 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                      <Users size={16} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {hasOwners && (
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Users size={14} className="text-indigo-600" />
+                  Legal Owners (Members)
+                </h3>
+                <div className="space-y-2">
+                  {data.owners.map((owner: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-indigo-50/30 rounded-xl border border-indigo-100">
+                      <div className="flex items-center justify-between">
                         <span className="text-sm font-bold text-indigo-900">{owner.name}</span>
-                        <span className={cn(
-                          "text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase",
-                          owner.source === 'SOS' ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
-                        )}>
-                          {owner.source}
-                        </span>
+                        <span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold uppercase">{owner.source}</span>
                       </div>
-                      <p className="text-[11px] text-indigo-700/70">{owner.role}</p>
+                      <p className="text-[11px] text-indigo-700 mt-1">{owner.role}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {hasDirectors && (
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Briefcase size={14} className="text-amber-600" />
+                  Management (Directors/Officers)
+                </h3>
+                <div className="space-y-2">
+                  {data.directors.map((dir: any, idx: number) => (
+                    <div key={idx} className="p-3 bg-amber-50/30 rounded-xl border border-amber-100">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-amber-900">{dir.name}</span>
+                        <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold uppercase">{dir.source}</span>
+                      </div>
+                      <p className="text-[11px] text-amber-700 mt-1">{dir.role}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {hasOtherExact && (
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Globe size={14} className="text-emerald-600" />
+                  Exact Matches (Other States)
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {data.other_states_exact.map((item: any, idx: number) => (
+                    <div key={idx} className="p-2 bg-emerald-50/30 rounded-lg border border-emerald-100 flex items-center justify-between">
+                      <span className="text-xs font-bold text-emerald-900">{item.state}</span>
+                      <span className="text-[9px] text-emerald-600 font-medium">{item.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {hasSimilar && (
+              <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Search size={14} className="text-slate-600" />
+                  Similar Entities Found
+                </h3>
+                <div className="space-y-2">
+                  {data.similar_entities.map((item: any, idx: number) => (
+                    <div key={idx} className="p-2 bg-slate-50 rounded-lg border border-slate-100 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">{item.name}</p>
+                        <p className="text-[10px] text-slate-500">{item.state}</p>
+                      </div>
+                      <span className="text-[9px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded uppercase font-bold">{item.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {hasFinancials && (
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">

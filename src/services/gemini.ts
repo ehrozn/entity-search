@@ -16,66 +16,59 @@ export async function searchBusinessInfo(info: BusinessInfo, sessionId: string) 
   
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are a Senior Tax Research Auditor for US Tax Firms. Your mission is to provide 100% accurate data for tax compliance (Forms 1120, 1065, 1040 Sch C) and BOI (Beneficial Ownership Information) reporting.
+  const prompt = `You are a Senior Tax Research Auditor for US Tax Firms. Your mission is to provide 100% accurate data for tax compliance and BOI reporting.
 
-  CRITICAL: Prioritize Secretary of State (SOS) filings for legal ownership. Do NOT confuse a "Yelp Manager" with a "Legal Member/Officer".
+  CRITICAL SEARCH INSTRUCTIONS:
+  1. **Primary Focus:** Search for "${info.name}" in ${info.state}.
+  2. **Multi-State Search:** Also search for "${info.name}" in ALL other US states to identify potential nexus or duplicate entities.
+  3. **Categorization:** 
+     - **Exact Match (Selected State):** The entity in ${info.state} with the exact name.
+     - **Exact Match (Other States):** Entities in other states with the exact same name.
+     - **Similar Names:** Entities with names very similar to "${info.name}" (e.g., DBA names, common misspellings).
 
-  Search for "${info.name}" in ${info.state} across:
-  1. **Primary (Legal):** Secretary of State (SOS) Business Search, OpenCorporates, SEC EDGAR.
-  2. **Secondary (Professional):** LinkedIn (Company Page & People), ZoomInfo, Professional Licenses.
-  3. **Tertiary (Public):** Yelp, Thumbtack, Glassdoor (use only for nexus/activity, not legal structure).
+  DATA SEPARATION:
+  - **Owners:** Individuals or entities with legal ownership (Members, Shareholders).
+  - **Directors/Officers:** Individuals in management roles (President, Secretary, Treasurer, Director) who may not be owners.
 
   The report MUST follow this structure:
   
   # 🏛️ Tax Audit Report: ${info.name}
   
-  ## 📑 Tax & Legal Identity
+  ## 📑 Primary Entity (${info.state})
   | Property | Information |
   | :--- | :--- |
   | **Legal Name** | [Full Legal Name from SOS] |
   | **Entity Type** | [LLC, S-Corp, C-Corp, etc.] |
-  | **EIN Status** | [Found/Not Found] |
-  | **Formation Date** | [Date] |
-  | **Status** | [Active/Dissolved/Forfeited] |
+  | **Status** | [Active/Dissolved] |
   
-  ## 👥 Ownership & Management (BOI Focus)
-  *   **Legal Owners/Officers (from SOS):** [List names and titles like Managing Member, President, etc.]
-  *   **Public Representatives (from LinkedIn/Yelp):** [Names found in public profiles]
-  *   **Registered Agent:** [Name & Address]
+  ## 👥 Ownership (Legal Members)
+  [List legal owners found in SOS records for ${info.state}]
   
-  ## 📍 Location & Nexus Analysis
-  *   **Principal Office:** [Address]
-  *   **Multi-State Activity:** [List states with active presence]
-  *   **Nexus Risk:** [High/Medium/Low - based on activity vs registration]
+  ## 👔 Management (Directors & Officers)
+  [List directors, officers, and managers found in SOS records for ${info.state}]
   
-  ## 💰 Financials & NAICS
-  *   **Primary NAICS Code:** [6-digit code] - [Description]
-  *   **Estimated Revenue:** [Amount]
+  ## 🌎 Multi-State Presence & Exact Matches
+  *   **Exact Matches in Other States:** [List states where the exact same name exists]
+  *   **Similar Entities Found:** [List similar names found across the US]
   
-  ## 🔗 Verified Sources
-  *   **SOS Registry:** [Direct URL]
-  *   **Professional/Public:** [URLs]
+  ## 📍 Nexus & Activity Analysis
+  *   **Registered State:** ${info.state}
+  *   **High Activity States:** [States where they have physical presence or high review volume]
+  *   **Nexus Risk:** [Risk level and reason]
 
   ---
   ### DATA_FOR_UI_DO_NOT_EDIT
   {
-    "financials": [
-      {"year": "2021", "revenue": 0},
-      {"year": "2022", "revenue": 0},
-      {"year": "2023", "revenue": 0}
-    ],
-    "naics": [
-      {"code": "XXXXXX", "description": "Industry Name", "confidence": "High"}
-    ],
-    "nexus_risks": [
-      {"state": "State Name", "risk_level": "High", "reason": "Reason"}
-    ],
-    "owners": [
-      {"name": "Owner Name", "role": "Title", "source": "SOS/LinkedIn"}
-    ]
+    "financials": [{"year": "2023", "revenue": 0}],
+    "naics": [{"code": "XXXXXX", "description": "Industry", "confidence": "High"}],
+    "nexus_risks": [{"state": "State", "risk_level": "High", "reason": "Reason"}],
+    "owners": [{"name": "Name", "role": "Owner/Member", "source": "SOS"}],
+    "directors": [{"name": "Name", "role": "Director/President", "source": "SOS"}],
+    "other_states_exact": [{"state": "State", "status": "Active", "source": "SOS"}],
+    "similar_entities": [{"name": "Similar Name", "state": "State", "status": "Active"}]
   }
   ---
-  *Note: Ensure the JSON is RAW and NOT wrapped in markdown. Distinguish legal owners from public managers.*`;
+  *Note: Ensure the JSON is RAW and NOT wrapped in markdown. Keep owners and directors strictly separate.*`;
 
   try {
     const chat = ai.chats.create({
