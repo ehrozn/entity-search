@@ -16,40 +16,45 @@ export async function searchBusinessInfo(info: BusinessInfo, sessionId: string) 
   
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are a specialized Tax Research Assistant for US Tax Managers. Your goal is to find missing business information for tax returns (Forms 1120, 1065, 1040 Sch C) and identify potential tax risks.
+  const prompt = `You are a Senior Tax Research Auditor for US Tax Firms. Your mission is to provide 100% accurate data for tax compliance (Forms 1120, 1065, 1040 Sch C) and BOI (Beneficial Ownership Information) reporting.
+
+  CRITICAL: Prioritize Secretary of State (SOS) filings for legal ownership. Do NOT confuse a "Yelp Manager" with a "Legal Member/Officer".
 
   Search for "${info.name}" in ${info.state} across:
-  1. **Business Directories:** Yelp, Thumbtack, LinkedIn, Glassdoor.
-  2. **Official Sources:** Secretary of State registries, SEC EDGAR, IRS public records.
+  1. **Primary (Legal):** Secretary of State (SOS) Business Search, OpenCorporates, SEC EDGAR.
+  2. **Secondary (Professional):** LinkedIn (Company Page & People), ZoomInfo, Professional Licenses.
+  3. **Tertiary (Public):** Yelp, Thumbtack, Glassdoor (use only for nexus/activity, not legal structure).
 
   The report MUST follow this structure:
   
-  # 🏛️ Tax Research Report: ${info.name}
+  # 🏛️ Tax Audit Report: ${info.name}
   
   ## 📑 Tax & Legal Identity
   | Property | Information |
   | :--- | :--- |
-  | **Legal Name** | [Full Legal Name] |
-  | **Entity Type** | [LLC, S-Corp, C-Corp, Partnership, etc.] |
+  | **Legal Name** | [Full Legal Name from SOS] |
+  | **Entity Type** | [LLC, S-Corp, C-Corp, etc.] |
   | **EIN Status** | [Found/Not Found] |
   | **Formation Date** | [Date] |
-  | **Status** | [Active/Good Standing] |
+  | **Status** | [Active/Dissolved/Forfeited] |
+  
+  ## 👥 Ownership & Management (BOI Focus)
+  *   **Legal Owners/Officers (from SOS):** [List names and titles like Managing Member, President, etc.]
+  *   **Public Representatives (from LinkedIn/Yelp):** [Names found in public profiles]
+  *   **Registered Agent:** [Name & Address]
   
   ## 📍 Location & Nexus Analysis
-  *   **Primary Address:** [Full Address for tax filing]
-  *   **Activity in Other States:** [List other states where company has reviews/offices/activity on Yelp/Thumbtack]
-  *   **Nexus Risk:** [Briefly state if there's a risk of Sales Tax Nexus in other states based on activity]
+  *   **Principal Office:** [Address]
+  *   **Multi-State Activity:** [List states with active presence]
+  *   **Nexus Risk:** [High/Medium/Low - based on activity vs registration]
   
-  ## 💰 Financial & Operational Data
-  *   **Estimated Annual Revenue:** [Amount]
-  *   **Employee Count:** [Estimate]
+  ## 💰 Financials & NAICS
+  *   **Primary NAICS Code:** [6-digit code] - [Description]
+  *   **Estimated Revenue:** [Amount]
   
-  ## 🔗 Source Links
-  *   **Yelp/Thumbtack:** [URLs]
-  *   **Official Registry:** [URL]
-
-  ## 📝 Summary for Tax Return
-  [Provide a concise summary of business activity.]
+  ## 🔗 Verified Sources
+  *   **SOS Registry:** [Direct URL]
+  *   **Professional/Public:** [URLs]
 
   ---
   ### DATA_FOR_UI_DO_NOT_EDIT
@@ -60,15 +65,17 @@ export async function searchBusinessInfo(info: BusinessInfo, sessionId: string) 
       {"year": "2023", "revenue": 0}
     ],
     "naics": [
-      {"code": "XXXXXX", "description": "Primary Industry Name", "confidence": "High"},
-      {"code": "XXXXXX", "description": "Secondary Industry Name", "confidence": "Medium"}
+      {"code": "XXXXXX", "description": "Industry Name", "confidence": "High"}
     ],
     "nexus_risks": [
-      {"state": "State Name", "risk_level": "High/Medium", "reason": "Active reviews/services found here but registered in ${info.state}"}
+      {"state": "State Name", "risk_level": "High", "reason": "Reason"}
+    ],
+    "owners": [
+      {"name": "Owner Name", "role": "Title", "source": "SOS/LinkedIn"}
     ]
   }
   ---
-  *Note: Ensure the JSON is valid and filled with real data if found.*`;
+  *Note: Ensure the JSON is RAW and NOT wrapped in markdown. Distinguish legal owners from public managers.*`;
 
   try {
     const chat = ai.chats.create({

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Building2, MapPin, Search, History, Plus, Loader2, Info, Star, StarOff, Heart, Download, FileText, Upload, MessageSquare, X, Menu, Copy, Trash2, CheckCircle2, AlertCircle, Printer } from 'lucide-react';
+import { Send, Building2, MapPin, Search, History, Plus, Loader2, Info, Star, StarOff, Heart, Download, FileText, Upload, MessageSquare, X, Menu, Copy, Trash2, CheckCircle2, AlertCircle, Printer, Users } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { searchBusinessInfo, askFollowUp } from './services/gemini';
 import { cn } from './lib/utils';
@@ -384,13 +384,50 @@ export default function App() {
     if (!jsonMatch) return null;
 
     try {
-      const data = JSON.parse(jsonMatch[1]);
+      let jsonStr = jsonMatch[1].trim();
+      // Remove markdown code blocks if present
+      if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+      }
+      
+      const data = JSON.parse(jsonStr);
       const hasFinancials = data.financials && data.financials.some((f: any) => f.revenue > 0);
       const hasNaics = data.naics && data.naics.length > 0 && data.naics[0].code !== "XXXXXX";
       const hasNexus = data.nexus_risks && data.nexus_risks.length > 0 && data.nexus_risks[0].state !== "State Name";
+      const hasOwners = data.owners && data.owners.length > 0 && data.owners[0].name !== "Owner Name";
 
       return (
         <div className="mt-6 space-y-6 border-t border-slate-100 pt-6">
+          {hasOwners && (
+            <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Users size={14} className="text-indigo-600" />
+                Ownership & Management
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {data.owners.map((owner: any, idx: number) => (
+                  <div key={idx} className="p-3 bg-indigo-50/30 rounded-xl border border-indigo-100 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                      <Users size={16} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-indigo-900">{owner.name}</span>
+                        <span className={cn(
+                          "text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase",
+                          owner.source === 'SOS' ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"
+                        )}>
+                          {owner.source}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-indigo-700/70">{owner.role}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {hasFinancials && (
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
