@@ -549,37 +549,37 @@ export default function App() {
         </header>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
           {messages.length === 0 && (
-            <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center space-y-6">
-              <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center text-emerald-600 mb-2">
-                <Search size={40} />
+            <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center space-y-3 py-2">
+              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 mb-1">
+                <Search size={24} />
               </div>
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900">Find Business Information</h2>
-                <p className="text-slate-500 text-lg">
+              <div className="space-y-0.5">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900">Find Business Information</h2>
+                <p className="text-slate-500 text-xs md:text-sm">
                   Enter company name and state to get tax return data.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 w-full pt-1">
                 <div 
-                  className="p-4 bg-white border border-slate-200 rounded-2xl text-left hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group" 
+                  className="p-2.5 bg-white border border-slate-200 rounded-xl text-left hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group" 
                   onClick={() => handleSearch(undefined, 'Apple Inc.', 'California')}
                 >
-                  <p className="text-xs font-semibold text-slate-400 uppercase mb-1 group-hover:text-emerald-500">Example 1</p>
-                  <p className="font-medium">Apple Inc. in California</p>
+                  <p className="text-[9px] font-semibold text-slate-400 uppercase mb-0.5 group-hover:text-emerald-500">Example 1</p>
+                  <p className="font-medium text-xs md:text-sm">Apple Inc. in California</p>
                 </div>
                 <div 
-                  className="p-4 bg-white border border-slate-200 rounded-2xl text-left hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group" 
+                  className="p-2.5 bg-white border border-slate-200 rounded-xl text-left hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer group" 
                   onClick={() => handleSearch(undefined, 'Microsoft', 'Washington')}
                 >
-                  <p className="text-xs font-semibold text-slate-400 uppercase mb-1 group-hover:text-emerald-500">Example 2</p>
-                  <p className="font-medium">Microsoft in Washington</p>
+                  <p className="text-[9px] font-semibold text-slate-400 uppercase mb-0.5 group-hover:text-emerald-500">Example 2</p>
+                  <p className="font-medium text-xs md:text-sm">Microsoft in Washington</p>
                 </div>
               </div>
               <AdBanner 
                 slot={import.meta.env.VITE_ADSENSE_SLOT_DEFAULT || "XXXXXXXXXX"} 
-                className="w-full max-w-md pt-4" 
+                className="w-full max-w-md pt-1" 
               />
             </div>
           )}
@@ -722,13 +722,13 @@ export default function App() {
         </div>
 
         {/* Input Area */}
-        <div className="p-6 bg-gradient-to-t from-[#f5f5f5] via-[#f5f5f5] to-transparent">
+        <div className="p-4 bg-gradient-to-t from-[#f5f5f5] via-[#f5f5f5] to-transparent">
           <form 
             onSubmit={handleSearch}
-            className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 p-2 flex flex-col md:flex-row gap-2"
+            className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 p-1.5 flex flex-col md:flex-row gap-1.5"
           >
-            <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-emerald-200 transition-all">
-              <Building2 size={18} className="text-slate-400" />
+            <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-xl border border-transparent focus-within:border-emerald-200 transition-all">
+              <Building2 size={16} className="text-slate-400" />
               <input 
                 type="text" 
                 placeholder="Company name..." 
@@ -738,8 +738,8 @@ export default function App() {
                 required
               />
             </div>
-            <div className="w-full md:w-56 flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-xl border border-transparent focus-within:border-emerald-200 transition-all">
-              <MapPin size={18} className="text-slate-400" />
+            <div className="w-full md:w-48 flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-xl border border-transparent focus-within:border-emerald-200 transition-all">
+              <MapPin size={16} className="text-slate-400" />
               <select 
                 className="flex-1 bg-transparent border-none outline-none text-sm font-medium text-slate-700 appearance-none cursor-pointer"
                 value={state}
@@ -755,19 +755,19 @@ export default function App() {
             <button 
               type="submit"
               disabled={isLoading || isBatchProcessing || !businessName.trim() || !state.trim()}
-              className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-200"
+              className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white px-5 py-2 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-200"
             >
-              {isLoading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+              {isLoading ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
               <span>Search</span>
             </button>
           </form>
-          <div className="max-w-4xl mx-auto mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+          <div className="max-w-4xl mx-auto mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[9px] text-slate-400 font-bold uppercase tracking-widest">
             <span>© 2026 Entity Search Platform</span>
             <button onClick={() => setShowPrivacy(true)} className="hover:text-emerald-600 transition-colors">Privacy Policy</button>
             <button onClick={() => setShowTerms(true)} className="hover:text-emerald-600 transition-colors">Terms of Service</button>
             <button onClick={() => setShowAbout(true)} className="hover:text-emerald-600 transition-colors">Contact Support</button>
           </div>
-          <p className="text-center text-[10px] text-slate-400 mt-3 font-medium uppercase tracking-widest">
+          <p className="text-center text-[9px] text-slate-400 mt-2 font-medium uppercase tracking-widest">
             AI can make mistakes. Always verify data in official sources.
           </p>
         </div>
