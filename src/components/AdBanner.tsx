@@ -13,7 +13,8 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   responsive = true,
   className = ''
 }) => {
-  let adsenseClientId = import.meta.env.VITE_ADSENSE_CLIENT_ID;
+  // Use the environment variable, but fallback to the user's ID if it's not set
+  let adsenseClientId = import.meta.env.VITE_ADSENSE_CLIENT_ID || 'ca-pub-7207480086274037';
   
   // Robustness: Add ca- prefix if user provided only the pub- part
   if (adsenseClientId && !adsenseClientId.startsWith('ca-')) {
@@ -22,7 +23,8 @@ export const AdBanner: React.FC<AdBannerProps> = ({
       : `ca-pub-${adsenseClientId}`;
   }
 
-  const adSlot = slot || import.meta.env.VITE_ADSENSE_SLOT_DEFAULT;
+  // Fallback for the slot ID as well
+  const adSlot = slot || import.meta.env.VITE_ADSENSE_SLOT_DEFAULT || '5935814652';
   const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
