@@ -13,7 +13,15 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   responsive = true,
   className = ''
 }) => {
-  const adsenseClientId = import.meta.env.VITE_ADSENSE_CLIENT_ID;
+  let adsenseClientId = import.meta.env.VITE_ADSENSE_CLIENT_ID;
+  
+  // Robustness: Add ca- prefix if user provided only the pub- part
+  if (adsenseClientId && !adsenseClientId.startsWith('ca-')) {
+    adsenseClientId = adsenseClientId.startsWith('pub-') 
+      ? `ca-${adsenseClientId}` 
+      : `ca-pub-${adsenseClientId}`;
+  }
+
   const adSlot = slot || import.meta.env.VITE_ADSENSE_SLOT_DEFAULT;
   const adRef = useRef<HTMLModElement>(null);
 
