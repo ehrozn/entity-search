@@ -13,12 +13,13 @@ export const AdBanner: React.FC<AdBannerProps> = ({
   responsive = true,
   className = ''
 }) => {
-  const adsenseClientId = import.meta.env.VITE_ADSENSE_CLIENT_ID || "ca-pub-7207480086274037";
-  const defaultSlot = slot === import.meta.env.VITE_ADSENSE_SLOT_SIDEBAR ? "1234567890" : "0987654321";
-  const adSlot = slot || defaultSlot;
+  const adsenseClientId = import.meta.env.VITE_ADSENSE_CLIENT_ID;
+  const adSlot = slot || import.meta.env.VITE_ADSENSE_SLOT_DEFAULT;
   const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
+    if (!adsenseClientId) return;
+    
     // Ensure the element exists and hasn't been processed yet
     if (adRef.current && !adRef.current.getAttribute('data-adsbygoogle-status')) {
       try {
@@ -36,15 +37,21 @@ export const AdBanner: React.FC<AdBannerProps> = ({
 
   return (
     <div className={`overflow-hidden ${className}`}>
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client={adsenseClientId}
-        data-ad-slot={adSlot}
-        data-ad-format={format}
-        data-full-width-responsive={responsive ? 'true' : 'false'}
-      />
+      {!adsenseClientId ? (
+        <div className="bg-slate-50 border border-dashed border-slate-200 rounded-lg p-4 flex items-center justify-center text-slate-400 text-xs text-center">
+          Ad Space<br/>(Configure VITE_ADSENSE_CLIENT_ID)
+        </div>
+      ) : (
+        <ins
+          ref={adRef}
+          className="adsbygoogle"
+          style={{ display: 'block' }}
+          data-ad-client={adsenseClientId}
+          data-ad-slot={adSlot}
+          data-ad-format={format}
+          data-full-width-responsive={responsive ? 'true' : 'false'}
+        />
+      )}
     </div>
   );
 };

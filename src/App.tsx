@@ -577,6 +577,10 @@ export default function App() {
                   <p className="font-medium">Microsoft in Washington</p>
                 </div>
               </div>
+              <AdBanner 
+                slot={import.meta.env.VITE_ADSENSE_SLOT_DEFAULT || "XXXXXXXXXX"} 
+                className="w-full max-w-md pt-4" 
+              />
             </div>
           )}
 
